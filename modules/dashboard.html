@@ -1,1 +1,220 @@
+<!-- Dashboard Module -->
+<div class="dashboard-container">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div>
+            <h1 class="dashboard-title" id="dashboardTitle">
+                <i class="fas fa-tachometer-alt me-2"></i>
+                Dashboard - <span id="currentTicker">BBCA</span>
+            </h1>
+            <p class="dashboard-subtitle" id="dashboardSubtitle">
+                Ringkasan kinerja dan analisis fundamental
+            </p>
+        </div>
+        <div class="dashboard-actions">
+            <button class="btn btn-outline-primary btn-sm" onclick="app.editCurrentEmiten()">
+                <i class="fas fa-edit me-1"></i> Edit Data
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="app.refreshDashboard()">
+                <i class="fas fa-sync-alt me-1"></i> Refresh
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="app.exportDashboard()">
+                <i class="fas fa-download me-1"></i> Export
+            </button>
+        </div>
+    </div>
 
+    <!-- KPI Cards -->
+    <div class="kpi-grid" id="kpiGrid">
+        <!-- Will be populated by JavaScript -->
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="chart-grid">
+        <div class="chart-wrapper">
+            <div class="chart-header">
+                <h3 class="chart-title">Revenue & Net Profit Growth</h3>
+                <div class="chart-actions">
+                    <button onclick="app.toggleChartView('revenue')">5Y</button>
+                    <button onclick="app.toggleChartView('revenue')">10Y</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-wrapper">
+            <div class="chart-header">
+                <h3 class="chart-title">Profitability Margins</h3>
+                <div class="chart-actions">
+                    <button onclick="app.toggleChartView('margins')">Annual</button>
+                    <button onclick="app.toggleChartView('margins')">Quarterly</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="marginChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="chart-grid">
+        <div class="chart-wrapper">
+            <div class="chart-header">
+                <h3 class="chart-title">Return on Equity & Assets</h3>
+                <div class="chart-actions">
+                    <button onclick="app.toggleChartView('roe')">ROE</button>
+                    <button onclick="app.toggleChartView('roe')">ROA</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="roeChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-wrapper">
+            <div class="chart-header">
+                <h3 class="chart-title">Valuation Ratios Trend</h3>
+                <div class="chart-actions">
+                    <button onclick="app.toggleChartView('valuation')">PER</button>
+                    <button onclick="app.toggleChartView('valuation')">PBV</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="valuationChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Financial Summary -->
+    <div class="data-section">
+        <div class="data-header">
+            <h3 class="data-title">Financial Summary (5 Years)</h3>
+            <p class="data-subtitle">Data dalam Rp Miliar, kecuali disebut lain</p>
+        </div>
+        <div class="data-body">
+            <table class="data-table" id="financialSummary">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>2023</th>
+                        <th>2022</th>
+                        <th>2021</th>
+                        <th>2020</th>
+                        <th>2019</th>
+                        <th>CAGR</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Key Ratios -->
+    <div class="summary-cards">
+        <div class="summary-card">
+            <h4 class="summary-card-title">Profitability Ratios</h4>
+            <ul class="summary-list" id="profitabilityRatios">
+                <!-- Will be populated by JavaScript -->
+            </ul>
+        </div>
+
+        <div class="summary-card">
+            <h4 class="summary-card-title">Leverage Ratios</h4>
+            <ul class="summary-list" id="leverageRatios">
+                <!-- Will be populated by JavaScript -->
+            </ul>
+        </div>
+
+        <div class="summary-card">
+            <h4 class="summary-card-title">Valuation Ratios</h4>
+            <ul class="summary-list" id="valuationRatios">
+                <!-- Will be populated by JavaScript -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <a href="#valuation" class="action-btn" onclick="app.loadModule('valuation')">
+            <div class="action-icon">
+                <i class="fas fa-coins"></i>
+            </div>
+            <div class="action-text">Valuasi</div>
+        </a>
+
+        <a href="#comparison" class="action-btn" onclick="app.loadModule('comparison')">
+            <div class="action-icon">
+                <i class="fas fa-balance-scale"></i>
+            </div>
+            <div class="action-text">Komparasi</div>
+        </a>
+
+        <a href="#ratios" class="action-btn" onclick="app.loadModule('ratios')">
+            <div class="action-icon">
+                <i class="fas fa-calculator"></i>
+            </div>
+            <div class="action-text">Analisis Rasio</div>
+        </a>
+
+        <button class="action-btn" onclick="app.addNewEmiten()">
+            <div class="action-icon">
+                <i class="fas fa-plus"></i>
+            </div>
+            <div class="action-text">Tambah Emiten</div>
+        </button>
+    </div>
+
+    <!-- Recent Updates -->
+    <div class="data-section">
+        <div class="data-header">
+            <h3 class="data-title">Recent Updates</h3>
+            <p class="data-subtitle">Perubahan data terakhir</p>
+        </div>
+        <div class="data-body">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Action</th>
+                        <th>Description</th>
+                        <th>User</th>
+                    </tr>
+                </thead>
+                <tbody id="recentUpdates">
+                    <tr>
+                        <td>2024-01-15</td>
+                        <td><span class="badge badge-success">Updated</span></td>
+                        <td>Annual data 2023 for BBCA</td>
+                        <td>Admin</td>
+                    </tr>
+                    <tr>
+                        <td>2024-01-14</td>
+                        <td><span class="badge badge-primary">Added</span></td>
+                        <td>New emiten: TLKM</td>
+                        <td>Admin</td>
+                    </tr>
+                    <tr>
+                        <td>2024-01-13</td>
+                        <td><span class="badge badge-warning">Calculated</span></td>
+                        <td>Valuation ratios updated</td>
+                        <td>System</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+// Dashboard specific JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize dashboard if it's loaded in the main app
+    if (typeof app !== 'undefined') {
+        app.initializeDashboard();
+    }
+});
+</script>
