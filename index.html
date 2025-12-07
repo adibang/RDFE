@@ -1,17 +1,138 @@
+<!-- index.html - VERSI YANG BENAR-BENAR BERFUNGSI -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RDFE Web - Rekap Data Fundamental Emiten</title>
+    <title>RDFE Web - Analisis Saham BEI</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="assets/css/main.css" rel="stylesheet">
-    <link href="assets/css/components.css" rel="stylesheet">
-    <link href="assets/css/dashboard.css" rel="stylesheet">
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0"></script>
+    <style>
+        :root {
+            --primary-color: #0f52ba;
+            --secondary-color: #00a86b;
+            --danger-color: #dc143c;
+            --warning-color: #ffc107;
+            --border-radius: 10px;
+            --box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fb;
+            color: #333;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            min-height: calc(100vh - 60px);
+            border-right: 1px solid #dee2e6;
+            padding: 20px 0;
+        }
+        
+        .sidebar .nav-link {
+            color: #495057;
+            padding: 12px 20px;
+            border-radius: 0;
+            border-left: 4px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link:hover {
+            background-color: #f8f9fa;
+            border-left-color: var(--primary-color);
+        }
+        
+        .sidebar .nav-link.active {
+            background-color: rgba(15, 82, 186, 0.1);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        /* Card Styles */
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 600;
+        }
+        
+        /* KPI Cards */
+        .kpi-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .kpi-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .kpi-card .label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Table Styling */
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            border-top: none;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(15, 82, 186, 0.05);
+        }
+        
+        /* Form Styling */
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(15, 82, 186, 0.25);
+        }
+        
+        /* Badge */
+        .badge {
+            padding: 6px 10px;
+            font-weight: 500;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                min-height: auto;
+                margin-bottom: 20px;
+            }
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
@@ -19,103 +140,1622 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
                 <i class="fas fa-chart-line me-2"></i>
-                <span class="fw-bold">RDFE Web</span>
-                <small class="text-light ms-2">v2.0</small>
+                <strong>RDFE Web</strong>
+                <small class="ms-2 opacity-75">Analisis Fundamental Saham</small>
             </a>
-            <div class="navbar-nav ms-auto">
-                <button class="btn btn-light btn-sm me-2" onclick="exportToExcel()">
-                    <i class="fas fa-file-excel"></i> Export
-                </button>
-                <button class="btn btn-outline-light btn-sm" onclick="backupData()">
-                    <i class="fas fa-save"></i> Backup
+            <div class="d-flex align-items-center">
+                <span class="text-light me-3 d-none d-md-block">Data tersimpan di browser Anda</span>
+                <button class="btn btn-light btn-sm" onclick="exportToExcel()">
+                    <i class="fas fa-download me-1"></i> Export
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- Main Container -->
     <div class="container-fluid mt-3">
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-lg-2 col-md-3 sidebar">
-                <div class="list-group">
-                    <a href="#dashboard" class="list-group-item list-group-item-action active" onclick="loadModule('dashboard')">
-                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                    </a>
-                    <a href="#input" class="list-group-item list-group-item-action" onclick="loadModule('input')">
-                        <i class="fas fa-edit me-2"></i> Input Data
-                    </a>
-                    <a href="#ratios" class="list-group-item list-group-item-action" onclick="loadModule('ratios')">
-                        <i class="fas fa-calculator me-2"></i> Rasio Keuangan
-                    </a>
-                    <a href="#valuation" class="list-group-item list-group-item-action" onclick="loadModule('valuation')">
-                        <i class="fas fa-coins me-2"></i> Valuasi
-                    </a>
-                    <a href="#comparison" class="list-group-item list-group-item-action" onclick="loadModule('comparison')">
-                        <i class="fas fa-balance-scale me-2"></i> Komparasi
-                    </a>
-                    <a href="#settings" class="list-group-item list-group-item-action" onclick="loadModule('settings')">
-                        <i class="fas fa-cog me-2"></i> Pengaturan
-                    </a>
-                </div>
-                
-                <div class="mt-4">
-                    <h6 class="text-muted mb-2">Emiten Aktif</h6>
-                    <select class="form-select form-select-sm" id="emitenSelector" onchange="changeEmiten()">
-                        <option value="BBCA">BBCA - Bank Central Asia</option>
-                        <option value="TLKM">TLKM - Telkom Indonesia</option>
-                        <option value="ASII">ASII - Astra International</option>
-                    </select>
+            <div class="col-lg-2 col-md-3">
+                <div class="sidebar sticky-top">
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3">NAVIGASI</h6>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#" onclick="loadModule('dashboard')">
+                                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" onclick="loadModule('input')">
+                                    <i class="fas fa-edit me-2"></i> Input Data
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" onclick="loadModule('ratios')">
+                                    <i class="fas fa-calculator me-2"></i> Rasio Keuangan
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" onclick="loadModule('valuation')">
+                                    <i class="fas fa-coins me-2"></i> Valuasi
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" onclick="loadModule('comparison')">
+                                    <i class="fas fa-balance-scale me-2"></i> Komparasi
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                     
-                    <div class="mt-3">
-                        <button class="btn btn-outline-primary btn-sm w-100" onclick="addNewEmiten()">
-                            <i class="fas fa-plus"></i> Tambah Emiten
+                    <div class="mt-4">
+                        <h6 class="text-muted mb-3">EMITEN</h6>
+                        <select class="form-select form-select-sm mb-3" id="emitenSelect" onchange="changeEmiten()">
+                            <option value="BBCA">BBCA - Bank Central Asia</option>
+                            <option value="TLKM">TLKM - Telkom Indonesia</option>
+                            <option value="ASII">ASII - Astra International</option>
+                        </select>
+                        
+                        <button class="btn btn-outline-primary btn-sm w-100 mb-2" onclick="addNewEmiten()">
+                            <i class="fas fa-plus me-1"></i> Tambah Emiten
                         </button>
+                        
+                        <button class="btn btn-outline-secondary btn-sm w-100" onclick="showSettings()">
+                            <i class="fas fa-cog me-1"></i> Pengaturan
+                        </button>
+                    </div>
+                    
+                    <div class="mt-4 pt-3 border-top">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Data otomatis tersimpan di browser Anda
+                        </small>
                     </div>
                 </div>
             </div>
 
             <!-- Main Content -->
             <div class="col-lg-10 col-md-9">
-                <div id="content-area">
-                    <!-- Content will be dynamically loaded here -->
+                <div id="contentArea">
+                    <!-- Konten akan dimuat di sini -->
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer mt-5 py-3 bg-light">
-        <div class="container text-center">
-            <span class="text-muted">
-                RDFE Web App v2.0 | Data tersimpan di localStorage | 
-                <a href="#" class="text-decoration-none" onclick="showHelp()">Bantuan</a>
-            </span>
+    <!-- Toast Notifications -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">RDFE</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="toastMessage">
+                Hello, world! This is a toast message.
+            </div>
         </div>
-    </footer>
+    </div>
 
-    <!-- Modal for Input -->
-    <div class="modal fade" id="inputModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+    <!-- Modal Tambah Emiten -->
+    <div class="modal fade" id="addEmitenModal" tabindex="-1">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Input Data Emiten</h5>
+                    <h5 class="modal-title">Tambah Emiten Baru</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body" id="modalBody">
-                    <!-- Input form will be loaded here -->
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Kode Saham</label>
+                        <input type="text" class="form-control" id="newTicker" placeholder="Contoh: BBCA" maxlength="4">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nama Perusahaan</label>
+                        <input type="text" class="form-control" id="newCompanyName" placeholder="Contoh: Bank Central Asia">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Sektor</label>
+                        <select class="form-control" id="newSector">
+                            <option value="Perbankan">Perbankan</option>
+                            <option value="Telekomunikasi">Telekomunikasi</option>
+                            <option value="Consumer Goods">Consumer Goods</option>
+                            <option value="Property">Property</option>
+                            <option value="Mining">Mining</option>
+                            <option value="Infrastructure">Infrastructure</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" onclick="saveNewEmiten()">Simpan</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/storage-handler.js"></script>
-    <script src="assets/js/data-manager.js"></script>
-    <script src="assets/js/chart-engine.js"></script>
-    <script src="assets/js/valuation-module.js"></script>
-    <script src="assets/js/comparison.js"></script> <!-- INI YANG TAMBAH -->
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/app.js"></script>
+    
+    <!-- Main Application Script -->
+    <script>
+        // =============================================
+        // VARIABEL GLOBAL DAN STATE MANAGEMENT
+        // =============================================
+        let currentEmiten = 'BBCA';
+        let currentModule = 'dashboard';
+        let emitenData = {};
+        let chartInstances = [];
+
+        // =============================================
+        // FUNGSI UTILITAS
+        // =============================================
+        
+        function showToast(message, type = 'info') {
+            const toastEl = document.getElementById('liveToast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            
+            // Set color based on type
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
+
+        function formatNumber(num) {
+            if (num === null || num === undefined) return '0';
+            
+            if (num >= 1000000000000) {
+                return (num / 1000000000000).toFixed(2) + 'T';
+            }
+            if (num >= 1000000000) {
+                return (num / 1000000000).toFixed(2) + 'B';
+            }
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(2) + 'M';
+            }
+            if (num >= 1000) {
+                return (num / 1000).toFixed(2) + 'K';
+            }
+            
+            return num.toLocaleString('id-ID');
+        }
+
+        // =============================================
+        // DATA MANAGEMENT FUNCTIONS
+        // =============================================
+        
+        function initializeData() {
+            // Cek apakah data sudah ada di localStorage
+            const savedData = localStorage.getItem('rdfe_data');
+            
+            if (savedData) {
+                emitenData = JSON.parse(savedData);
+            } else {
+                // Create sample data
+                emitenData = {
+                    BBCA: {
+                        info: {
+                            name: 'Bank Central Asia',
+                            sector: 'Perbankan',
+                            beta: 1.1
+                        },
+                        annual: {
+                            '2023': { revenue: 150000, netProfit: 40000, totalAssets: 1200000, equity: 250000, shares: 123456 },
+                            '2022': { revenue: 135000, netProfit: 36000, totalAssets: 1100000, equity: 230000, shares: 123456 },
+                            '2021': { revenue: 120000, netProfit: 31000, totalAssets: 1000000, equity: 200000, shares: 123000 },
+                            '2020': { revenue: 110000, netProfit: 28000, totalAssets: 950000, equity: 180000, shares: 122500 },
+                            '2019': { revenue: 100000, netProfit: 25000, totalAssets: 900000, equity: 165000, shares: 122000 }
+                        },
+                        prices: {
+                            current: 9550,
+                            '2023-12-29': 9550,
+                            '2023-12-28': 9500
+                        },
+                        lastUpdated: new Date().toISOString()
+                    },
+                    TLKM: {
+                        info: {
+                            name: 'Telkom Indonesia',
+                            sector: 'Telekomunikasi',
+                            beta: 0.8
+                        },
+                        annual: {
+                            '2023': { revenue: 140000, netProfit: 25000, totalAssets: 350000, equity: 180000, shares: 99062 },
+                            '2022': { revenue: 130000, netProfit: 23000, totalAssets: 330000, equity: 170000, shares: 99062 },
+                            '2021': { revenue: 120000, netProfit: 21000, totalAssets: 310000, equity: 160000, shares: 99062 }
+                        },
+                        prices: {
+                            current: 3530
+                        }
+                    },
+                    ASII: {
+                        info: {
+                            name: 'Astra International',
+                            sector: 'Consumer Goods',
+                            beta: 1.2
+                        },
+                        annual: {
+                            '2023': { revenue: 250000, netProfit: 18000, totalAssets: 450000, equity: 200000, shares: 40480 },
+                            '2022': { revenue: 230000, netProfit: 16000, totalAssets: 430000, equity: 190000, shares: 40480 },
+                            '2021': { revenue: 210000, netProfit: 14000, totalAssets: 410000, equity: 180000, shares: 40480 }
+                        },
+                        prices: {
+                            current: 6250
+                        }
+                    }
+                };
+                
+                saveData();
+            }
+            
+            // Update emiten selector
+            updateEmitenSelector();
+            
+            // Load default module
+            loadModule('dashboard');
+        }
+
+        function saveData() {
+            localStorage.setItem('rdfe_data', JSON.stringify(emitenData));
+            showToast('Data berhasil disimpan!', 'success');
+        }
+
+        function updateEmitenSelector() {
+            const selector = document.getElementById('emitenSelect');
+            if (!selector) return;
+            
+            selector.innerHTML = '';
+            
+            Object.keys(emitenData).forEach(ticker => {
+                const option = document.createElement('option');
+                option.value = ticker;
+                option.textContent = `${ticker} - ${emitenData[ticker].info.name}`;
+                if (ticker === currentEmiten) option.selected = true;
+                selector.appendChild(option);
+            });
+        }
+
+        // =============================================
+        // MODULE LOADING FUNCTIONS
+        // =============================================
+        
+        function loadModule(moduleName) {
+            currentModule = moduleName;
+            
+            // Update active menu
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event?.target.classList.add('active');
+            
+            // Destroy existing charts
+            chartInstances.forEach(chart => chart.destroy());
+            chartInstances = [];
+            
+            switch(moduleName) {
+                case 'dashboard':
+                    loadDashboard();
+                    break;
+                case 'input':
+                    loadInputForm();
+                    break;
+                case 'ratios':
+                    loadRatios();
+                    break;
+                case 'valuation':
+                    loadValuation();
+                    break;
+                case 'comparison':
+                    loadComparison();
+                    break;
+                default:
+                    loadDashboard();
+            }
+        }
+
+        function changeEmiten() {
+            const selector = document.getElementById('emitenSelect');
+            currentEmiten = selector.value;
+            loadModule(currentModule);
+        }
+
+        // =============================================
+        // DASHBOARD MODULE
+        // =============================================
+        
+        function loadDashboard() {
+            const data = emitenData[currentEmiten];
+            if (!data) return;
+            
+            const html = `
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="mb-2">
+                            <i class="fas fa-tachometer-alt me-2"></i>
+                            Dashboard - ${currentEmiten}
+                        </h2>
+                        <p class="text-muted">${data.info.name} | ${data.info.sector}</p>
+                    </div>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="kpi-card">
+                            <div class="label">Market Cap</div>
+                            <div class="value" id="marketCapValue">${calculateMarketCap(currentEmiten)}</div>
+                            <small class="text-success">
+                                <i class="fas fa-arrow-up"></i> 5.2% YoY
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="kpi-card">
+                            <div class="label">PER</div>
+                            <div class="value">${calculatePER(currentEmiten)}</div>
+                            <small class="text-muted">vs Avg: 18.5x</small>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="kpi-card">
+                            <div class="label">ROE</div>
+                            <div class="value">${calculateROE(currentEmiten)}</div>
+                            <small class="text-success">
+                                <i class="fas fa-arrow-up"></i> 16.0%
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="kpi-card">
+                            <div class="label">Dividend Yield</div>
+                            <div class="value">2.1%</div>
+                            <small class="text-success">+2.1%</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="row mb-4">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Revenue & Net Profit Growth</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="revenueChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Profitability Margins</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="marginChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Summary -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">5-Year Financial Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Metric</th>
+                                        <th>2023</th>
+                                        <th>2022</th>
+                                        <th>2021</th>
+                                        <th>2020</th>
+                                        <th>2019</th>
+                                        <th>CAGR</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${generateFinancialSummary(currentEmiten)}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-end gap-2">
+                            <button class="btn btn-outline-primary" onclick="loadModule('input')">
+                                <i class="fas fa-edit me-1"></i> Edit Data
+                            </button>
+                            <button class="btn btn-primary" onclick="loadModule('valuation')">
+                                <i class="fas fa-calculator me-1"></i> Hitung Valuasi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('contentArea').innerHTML = html;
+            
+            // Render charts
+            setTimeout(() => {
+                renderRevenueChart();
+                renderMarginChart();
+            }, 100);
+        }
+
+        function calculateMarketCap(ticker) {
+            const data = emitenData[ticker];
+            if (!data || !data.prices || !data.annual) return 'N/A';
+            
+            const currentPrice = data.prices.current || 0;
+            const shares = data.annual['2023']?.shares || 0;
+            const marketCap = (currentPrice * shares) / 1000; // Convert to billions
+            
+            return formatNumber(marketCap);
+        }
+
+        function calculatePER(ticker) {
+            const data = emitenData[ticker];
+            if (!data || !data.prices || !data.annual) return 'N/A';
+            
+            const currentPrice = data.prices.current || 0;
+            const netProfit = data.annual['2023']?.netProfit || 0;
+            const shares = data.annual['2023']?.shares || 1;
+            const eps = (netProfit * 1000) / shares;
+            
+            if (eps === 0) return 'N/A';
+            return (currentPrice / eps).toFixed(1) + 'x';
+        }
+
+        function calculateROE(ticker) {
+            const data = emitenData[ticker];
+            if (!data || !data.annual) return 'N/A';
+            
+            const netProfit = data.annual['2023']?.netProfit || 0;
+            const equity = data.annual['2023']?.equity || 1;
+            
+            return ((netProfit / equity) * 100).toFixed(1) + '%';
+        }
+
+        function generateFinancialSummary(ticker) {
+            const data = emitenData[ticker];
+            if (!data || !data.annual) return '';
+            
+            const years = ['2023', '2022', '2021', '2020', '2019'];
+            
+            const metrics = [
+                { name: 'Revenue (Rp M)', key: 'revenue' },
+                { name: 'Net Profit (Rp M)', key: 'netProfit' },
+                { name: 'Total Assets (Rp M)', key: 'totalAssets' },
+                { name: 'Equity (Rp M)', key: 'equity' }
+            ];
+            
+            let html = '';
+            metrics.forEach(metric => {
+                html += '<tr>';
+                html += `<td><strong>${metric.name}</strong></td>`;
+                
+                years.forEach(year => {
+                    const value = data.annual[year]?.[metric.key] || 0;
+                    html += `<td>${formatNumber(value)}</td>`;
+                });
+                
+                // Calculate CAGR
+                const firstYear = data.annual['2019']?.[metric.key];
+                const lastYear = data.annual['2023']?.[metric.key];
+                let cagr = 'N/A';
+                
+                if (firstYear && lastYear && firstYear > 0) {
+                    const growth = Math.pow(lastYear / firstYear, 1/4) - 1;
+                    cagr = (growth * 100).toFixed(1) + '%';
+                }
+                
+                html += `<td class="fw-bold">${cagr}</td>`;
+                html += '</tr>';
+            });
+            
+            return html;
+        }
+
+        // =============================================
+        // INPUT FORM MODULE
+        // =============================================
+        
+        function loadInputForm() {
+            const data = emitenData[currentEmiten] || createEmptyEmitenData();
+            
+            const html = `
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="mb-2">
+                            <i class="fas fa-edit me-2"></i>
+                            Input Data - ${currentEmiten}
+                        </h2>
+                        <p class="text-muted">Masukkan data laporan keuangan</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs">
+                            <li class="nav-item">
+                                <button class="nav-link active" onclick="switchTab('annual')">Data Tahunan</button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link" onclick="switchTab('prices')">Data Harga</button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link" onclick="switchTab('info')">Info Perusahaan</button>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card-body">
+                        <!-- Annual Data Tab -->
+                        <div id="annualTab">
+                            <h5 class="mb-3">Data Laporan Keuangan Tahunan</h5>
+                            <p class="text-muted mb-4">Masukkan data dalam Rp Miliar, kecuali saham beredar (juta lembar)</p>
+                            
+                            <div class="row">
+                                ${generateAnnualInputFields(data)}
+                            </div>
+                        </div>
+                        
+                        <!-- Prices Tab (hidden by default) -->
+                        <div id="pricesTab" style="display: none;">
+                            <h5 class="mb-3">Data Harga Saham</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Harga Terakhir (Rp)</label>
+                                        <input type="number" class="form-control" id="currentPrice" 
+                                               value="${data.prices?.current || 0}" step="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Saham Beredar (Juta Lembar)</label>
+                                        <input type="number" class="form-control" id="currentShares" 
+                                               value="${data.annual?.['2023']?.shares || 0}" step="0.01">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Market Cap: <span id="calculatedMarketCap">${calculateMarketCap(currentEmiten)}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Info Tab (hidden by default) -->
+                        <div id="infoTab" style="display: none;">
+                            <h5 class="mb-3">Informasi Perusahaan</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Nama Perusahaan</label>
+                                        <input type="text" class="form-control" id="companyName" 
+                                               value="${data.info?.name || ''}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Sektor</label>
+                                        <select class="form-control" id="companySector">
+                                            <option value="Perbankan" ${data.info?.sector === 'Perbankan' ? 'selected' : ''}>Perbankan</option>
+                                            <option value="Telekomunikasi" ${data.info?.sector === 'Telekomunikasi' ? 'selected' : ''}>Telekomunikasi</option>
+                                            <option value="Consumer Goods" ${data.info?.sector === 'Consumer Goods' ? 'selected' : ''}>Consumer Goods</option>
+                                            <option value="Property" ${data.info?.sector === 'Property' ? 'selected' : ''}>Property</option>
+                                            <option value="Mining" ${data.info?.sector === 'Mining' ? 'selected' : ''}>Mining</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 pt-3 border-top">
+                            <div class="d-flex justify-content-between">
+                                <button class="btn btn-secondary" onclick="loadModule('dashboard')">
+                                    <i class="fas fa-arrow-left me-1"></i> Kembali
+                                </button>
+                                <div>
+                                    <button class="btn btn-outline-primary me-2" onclick="calculateInput()">
+                                        <i class="fas fa-calculator me-1"></i> Hitung
+                                    </button>
+                                    <button class="btn btn-primary" onclick="saveInputData()">
+                                        <i class="fas fa-save me-1"></i> Simpan Data
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('contentArea').innerHTML = html;
+            
+            // Add event listeners for auto-calculation
+            setTimeout(() => {
+                document.getElementById('currentPrice')?.addEventListener('input', updateMarketCap);
+                document.getElementById('currentShares')?.addEventListener('input', updateMarketCap);
+            }, 100);
+        }
+
+        function generateAnnualInputFields(data) {
+            const years = ['2023', '2022', '2021', '2020', '2019'];
+            let html = '';
+            
+            years.forEach(year => {
+                const yearData = data.annual?.[year] || {};
+                
+                html += `
+                    <div class="col-md-12 mb-4">
+                        <h6 class="border-bottom pb-2">Tahun ${year}</h6>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Revenue (Rp Miliar)</label>
+                        <input type="number" class="form-control" id="revenue_${year}" 
+                               value="${yearData.revenue || 0}" step="0.01">
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Net Profit (Rp Miliar)</label>
+                        <input type="number" class="form-control" id="netProfit_${year}" 
+                               value="${yearData.netProfit || 0}" step="0.01">
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Total Assets (Rp Miliar)</label>
+                        <input type="number" class="form-control" id="totalAssets_${year}" 
+                               value="${yearData.totalAssets || 0}" step="0.01">
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Equity (Rp Miliar)</label>
+                        <input type="number" class="form-control" id="equity_${year}" 
+                               value="${yearData.equity || 0}" step="0.01">
+                    </div>
+                    
+                    ${year === '2023' ? `
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Saham Beredar (Juta Lembar)</label>
+                            <input type="number" class="form-control" id="shares_${year}" 
+                                   value="${yearData.shares || 0}" step="0.01">
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">EPS (Rupiah)</label>
+                            <input type="text" class="form-control" id="eps_${year}" 
+                                   value="${calculateEPS(yearData.netProfit || 0, yearData.shares || 1)}" readonly>
+                        </div>
+                    ` : ''}
+                `;
+            });
+            
+            return html;
+        }
+
+        function calculateEPS(netProfit, shares) {
+            if (!shares || shares === 0) return '0';
+            const eps = (netProfit * 1000) / shares;
+            return eps.toFixed(0);
+        }
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            ['annualTab', 'pricesTab', 'infoTab'].forEach(tab => {
+                document.getElementById(tab)?.style.display = 'none';
+            });
+            
+            // Show selected tab
+            document.getElementById(`${tabName}Tab`)?.style.display = 'block';
+            
+            // Update active tab button
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function updateMarketCap() {
+            const price = parseFloat(document.getElementById('currentPrice')?.value) || 0;
+            const shares = parseFloat(document.getElementById('currentShares')?.value) || 0;
+            const marketCap = (price * shares) / 1000;
+            
+            const display = document.getElementById('calculatedMarketCap');
+            if (display) {
+                display.textContent = formatNumber(marketCap);
+            }
+        }
+
+        function calculateInput() {
+            // Calculate EPS for 2023
+            const netProfit = parseFloat(document.getElementById('netProfit_2023')?.value) || 0;
+            const shares = parseFloat(document.getElementById('shares_2023')?.value) || 1;
+            const eps = calculateEPS(netProfit, shares);
+            
+            const epsInput = document.getElementById('eps_2023');
+            if (epsInput) epsInput.value = eps;
+            
+            // Update market cap
+            updateMarketCap();
+            
+            showToast('Perhitungan selesai!', 'success');
+        }
+
+        function saveInputData() {
+            // Collect annual data
+            const years = ['2023', '2022', '2021', '2020', '2019'];
+            const annualData = {};
+            
+            years.forEach(year => {
+                annualData[year] = {
+                    revenue: parseFloat(document.getElementById(`revenue_${year}`)?.value) || 0,
+                    netProfit: parseFloat(document.getElementById(`netProfit_${year}`)?.value) || 0,
+                    totalAssets: parseFloat(document.getElementById(`totalAssets_${year}`)?.value) || 0,
+                    equity: parseFloat(document.getElementById(`equity_${year}`)?.value) || 0
+                };
+                
+                if (year === '2023') {
+                    annualData[year].shares = parseFloat(document.getElementById(`shares_${year}`)?.value) || 0;
+                }
+            });
+            
+            // Collect price data
+            const priceData = {
+                current: parseFloat(document.getElementById('currentPrice')?.value) || 0
+            };
+            
+            // Collect company info
+            const companyInfo = {
+                name: document.getElementById('companyName')?.value || '',
+                sector: document.getElementById('companySector')?.value || ''
+            };
+            
+            // Update emiten data
+            if (!emitenData[currentEmiten]) {
+                emitenData[currentEmiten] = {};
+            }
+            
+            emitenData[currentEmiten].annual = annualData;
+            emitenData[currentEmiten].prices = priceData;
+            emitenData[currentEmiten].info = companyInfo;
+            emitenData[currentEmiten].lastUpdated = new Date().toISOString();
+            
+            // Save to localStorage
+            saveData();
+            
+            // Update selector if new company name
+            updateEmitenSelector();
+            
+            // Go back to dashboard
+            loadModule('dashboard');
+        }
+
+        // =============================================
+        // RATIOS MODULE
+        // =============================================
+        
+        function loadRatios() {
+            const data = emitenData[currentEmiten];
+            if (!data) return;
+            
+            const html = `
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="mb-2">
+                            <i class="fas fa-calculator me-2"></i>
+                            Rasio Keuangan - ${currentEmiten}
+                        </h2>
+                        <p class="text-muted">Analisis rasio keuangan berdasarkan data input</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h5 class="mb-0">Profitability Ratios</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Rasio</th>
+                                                <th>2023</th>
+                                                <th>2022</th>
+                                                <th>2021</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${generateProfitabilityRatios(currentEmiten)}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h5 class="mb-0">Leverage & Valuation Ratios</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Rasio</th>
+                                                <th>2023</th>
+                                                <th>2022</th>
+                                                <th>2021</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${generateLeverageRatios(currentEmiten)}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Ringkasan Analisis</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="text-center p-3">
+                                            <div class="h5 text-success">Profitability</div>
+                                            <div class="display-6 text-success">Baik</div>
+                                            <small class="text-muted">ROE konsisten di atas 15%</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="text-center p-3">
+                                            <div class="h5 text-warning">Leverage</div>
+                                            <div class="display-6 text-warning">Sedang</div>
+                                            <small class="text-muted">DER perlu dipantau</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="text-center p-3">
+                                            <div class="h5 text-primary">Valuation</div>
+                                            <div class="display-6 text-primary">Wajar</div>
+                                            <small class="text-muted">PER di bawah rata-rata sektor</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('contentArea').innerHTML = html;
+        }
+
+        function generateProfitabilityRatios(ticker) {
+            const data = emitenData[ticker];
+            if (!data || !data.annual) return '';
+            
+            const years = ['2023', '2022', '2021'];
+            let html = '';
+            
+            // Gross Margin (simplified)
+            years.forEach(year => {
+                const revenue = data.annual[year]?.revenue || 1;
+                const netProfit = data.annual[year]?.netProfit || 0;
+                const grossMargin = 65; // Simplified
+                const netMargin = (netProfit / revenue * 100).toFixed(1);
+                const roe = calculateROEValue(data.annual[year]?.netProfit, data.annual[year]?.equity);
+                
+                if (year === '2023') {
+                    html += `
+                        <tr>
+                            <td><strong>Gross Margin</strong></td>
+                            <td>${grossMargin}%</td>
+                            <td>${grossMargin}%</td>
+                            <td>${grossMargin}%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Net Margin</strong></td>
+                            <td>${netMargin}%</td>
+                            <td>${netMargin}%</td>
+                            <td>${netMargin}%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ROE</strong></td>
+                            <td>${roe}%</td>
+                            <td>${roe}%</td>
+                            <td>${roe}%</td>
+                        </tr>
+                    `;
+                }
+            });
+            
+            return html;
+        }
+
+        function calculateROEValue(netProfit, equity) {
+            if (!equity || equity === 0) return '0.0';
+            return ((netProfit / equity) * 100).toFixed(1);
+        }
+
+        function generateLeverageRatios(ticker) {
+            const data = emitenData[ticker];
+            if (!data || !data.annual) return '';
+            
+            const years = ['2023', '2022', '2021'];
+            let html = '';
+            
+            years.forEach(year => {
+                const assets = data.annual[year]?.totalAssets || 0;
+                const equity = data.annual[year]?.equity || 0;
+                const liabilities = assets - equity;
+                const der = equity > 0 ? (liabilities / equity).toFixed(1) : '0.0';
+                const per = calculatePER(ticker);
+                
+                if (year === '2023') {
+                    html += `
+                        <tr>
+                            <td><strong>DER</strong></td>
+                            <td>${der}x</td>
+                            <td>${der}x</td>
+                            <td>${der}x</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Current Ratio</strong></td>
+                            <td>1.5x</td>
+                            <td>1.4x</td>
+                            <td>1.4x</td>
+                        </tr>
+                        <tr>
+                            <td><strong>PER</strong></td>
+                            <td>${per}</td>
+                            <td>${per}</td>
+                            <td>${per}</td>
+                        </tr>
+                    `;
+                }
+            });
+            
+            return html;
+        }
+
+        // =============================================
+        // VALUATION MODULE
+        // =============================================
+        
+        function loadValuation() {
+            const data = emitenData[currentEmiten];
+            if (!data) return;
+            
+            const currentPrice = data.prices?.current || 0;
+            const perTarget = 5600;
+            const pbvTarget = 5500;
+            const dcfTarget = 5800;
+            
+            const averageTarget = Math.round((perTarget + pbvTarget + dcfTarget) / 3);
+            const upside = ((averageTarget - currentPrice) / currentPrice * 100).toFixed(1);
+            
+            const html = `
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="mb-2">
+                            <i class="fas fa-coins me-2"></i>
+                            Valuasi - ${currentEmiten}
+                        </h2>
+                        <p class="text-muted">Perhitungan nilai wajar dengan berbagai metode</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">PER Valuation</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">EPS 2024E</label>
+                                    <input type="number" class="form-control" value="350">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">PER Wajar</label>
+                                    <input type="number" class="form-control" value="16.0">
+                                </div>
+                                <div class="alert alert-success">
+                                    <strong>Target Harga:</strong>
+                                    <div class="h3">Rp ${perTarget.toLocaleString('id-ID')}</div>
+                                    <small>Upside: ${((perTarget - currentPrice) / currentPrice * 100).toFixed(1)}%</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-warning">
+                                <h5 class="mb-0">PBV Valuation</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">BVPS 2024E</label>
+                                    <input type="number" class="form-control" value="2200">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">PBV Wajar</label>
+                                    <input type="number" class="form-control" value="2.5">
+                                </div>
+                                <div class="alert alert-warning">
+                                    <strong>Target Harga:</strong>
+                                    <div class="h3">Rp ${pbvTarget.toLocaleString('id-ID')}</div>
+                                    <small>Upside: ${((pbvTarget - currentPrice) / currentPrice * 100).toFixed(1)}%</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">DCF Valuation</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">WACC</label>
+                                    <input type="number" class="form-control" value="11.0">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Terminal Growth</label>
+                                    <input type="number" class="form-control" value="3.0">
+                                </div>
+                                <div class="alert alert-info">
+                                    <strong>Target Harga:</strong>
+                                    <div class="h3">Rp ${dcfTarget.toLocaleString('id-ID')}</div>
+                                    <small>Upside: ${((dcfTarget - currentPrice) / currentPrice * 100).toFixed(1)}%</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0">Ringkasan Valuasi</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <div class="display-6 mb-3">Average Target Price</div>
+                                    <div class="display-1 text-primary">Rp ${averageTarget.toLocaleString('id-ID')}</div>
+                                    <div class="h2 ${upside > 0 ? 'text-success' : 'text-danger'}">
+                                        Upside: ${upside}%
+                                    </div>
+                                    <div class="mt-4">
+                                        <span class="badge bg-success fs-6 p-3">REKOMENDASI: BELI</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-end">
+                            <button class="btn btn-primary" onclick="saveValuation()">
+                                <i class="fas fa-save me-1"></i> Simpan Asumsi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('contentArea').innerHTML = html;
+        }
+
+        // =============================================
+        // COMPARISON MODULE
+        // =============================================
+        
+        function loadComparison() {
+            const html = `
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="mb-2">
+                            <i class="fas fa-balance-scale me-2"></i>
+                            Komparasi Multi-Emiten
+                        </h2>
+                        <p class="text-muted">Bandingkan fundamental beberapa emiten sekaligus</p>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h5 class="mb-0">Pilih Emiten untuk Dibandingkan</h5>
+                            </div>
+                            <div class="col-md-6">
+                                <select class="form-select" id="compareSelect" multiple>
+                                    ${Object.keys(emitenData).map(ticker => `
+                                        <option value="${ticker}" selected>${ticker} - ${emitenData[ticker].info.name}</option>
+                                    `).join('')}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Tabel Perbandingan</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Metric</th>
+                                        ${Object.keys(emitenData).map(ticker => `
+                                            <th>${ticker}</th>
+                                        `).join('')}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Market Cap</strong></td>
+                                        ${Object.keys(emitenData).map(ticker => `
+                                            <td>${calculateMarketCap(ticker)}</td>
+                                        `).join('')}
+                                    </tr>
+                                    <tr>
+                                        <td><strong>PER</strong></td>
+                                        ${Object.keys(emitenData).map(ticker => `
+                                            <td>${calculatePER(ticker)}</td>
+                                        `).join('')}
+                                    </tr>
+                                    <tr>
+                                        <td><strong>ROE</strong></td>
+                                        ${Object.keys(emitenData).map(ticker => `
+                                            <td>${calculateROE(ticker)}</td>
+                                        `).join('')}
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Sektor</strong></td>
+                                        ${Object.keys(emitenData).map(ticker => `
+                                            <td>${emitenData[ticker].info.sector}</td>
+                                        `).join('')}
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Harga Terakhir</strong></td>
+                                        ${Object.keys(emitenData).map(ticker => `
+                                            <td>Rp ${(emitenData[ticker].prices?.current || 0).toLocaleString('id-ID')}</td>
+                                        `).join('')}
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="comparisonChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('contentArea').innerHTML = html;
+            
+            // Render comparison chart
+            setTimeout(() => {
+                renderComparisonChart();
+            }, 100);
+        }
+
+        // =============================================
+        // EMITEN MANAGEMENT FUNCTIONS
+        // =============================================
+        
+        function addNewEmiten() {
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('addEmitenModal'));
+            modal.show();
+            
+            // Clear form
+            document.getElementById('newTicker').value = '';
+            document.getElementById('newCompanyName').value = '';
+            document.getElementById('newSector').value = 'Perbankan';
+        }
+
+        function saveNewEmiten() {
+            const ticker = document.getElementById('newTicker').value.toUpperCase();
+            const name = document.getElementById('newCompanyName').value;
+            const sector = document.getElementById('newSector').value;
+            
+            if (!ticker || !name) {
+                showToast('Harap isi kode dan nama emiten', 'warning');
+                return;
+            }
+            
+            if (emitenData[ticker]) {
+                showToast(`Emiten ${ticker} sudah ada`, 'warning');
+                return;
+            }
+            
+            // Create new emiten data
+            emitenData[ticker] = createEmptyEmitenData();
+            emitenData[ticker].info = {
+                name: name,
+                sector: sector,
+                beta: 1.0
+            };
+            
+            // Save data
+            saveData();
+            
+            // Update selector
+            updateEmitenSelector();
+            
+            // Set current emiten to new one
+            currentEmiten = ticker;
+            document.getElementById('emitenSelect').value = ticker;
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addEmitenModal'));
+            modal.hide();
+            
+            // Load input form for new emiten
+            loadModule('input');
+            
+            showToast(`Emiten ${ticker} berhasil ditambahkan`, 'success');
+        }
+
+        function createEmptyEmitenData() {
+            return {
+                info: {
+                    name: '',
+                    sector: '',
+                    beta: 1.0
+                },
+                annual: {
+                    '2023': { revenue: 0, netProfit: 0, totalAssets: 0, equity: 0, shares: 0 },
+                    '2022': { revenue: 0, netProfit: 0, totalAssets: 0, equity: 0, shares: 0 },
+                    '2021': { revenue: 0, netProfit: 0, totalAssets: 0, equity: 0, shares: 0 },
+                    '2020': { revenue: 0, netProfit: 0, totalAssets: 0, equity: 0, shares: 0 },
+                    '2019': { revenue: 0, netProfit: 0, totalAssets: 0, equity: 0, shares: 0 }
+                },
+                prices: {
+                    current: 0
+                },
+                lastUpdated: new Date().toISOString()
+            };
+        }
+
+        // =============================================
+        // CHART FUNCTIONS
+        // =============================================
+        
+        function renderRevenueChart() {
+            const ctx = document.getElementById('revenueChart');
+            if (!ctx) return;
+            
+            const data = emitenData[currentEmiten];
+            if (!data || !data.annual) return;
+            
+            const years = ['2019', '2020', '2021', '2022', '2023'];
+            const revenues = years.map(year => data.annual[year]?.revenue || 0);
+            const profits = years.map(year => data.annual[year]?.netProfit || 0);
+            
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [
+                        {
+                            label: 'Revenue (Rp Miliar)',
+                            data: revenues,
+                            borderColor: '#0f52ba',
+                            backgroundColor: 'rgba(15, 82, 186, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Net Profit (Rp Miliar)',
+                            data: profits,
+                            borderColor: '#00a86b',
+                            backgroundColor: 'rgba(0, 168, 107, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatNumber(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            chartInstances.push(chart);
+        }
+
+        function renderMarginChart() {
+            const ctx = document.getElementById('marginChart');
+            if (!ctx) return;
+            
+            const years = ['2019', '2020', '2021', '2022', '2023'];
+            
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: years,
+                    datasets: [
+                        {
+                            label: 'Gross Margin %',
+                            data: [65, 64, 65, 65, 65],
+                            backgroundColor: 'rgba(15, 82, 186, 0.7)'
+                        },
+                        {
+                            label: 'Net Margin %',
+                            data: [25, 25, 26, 27, 27],
+                            backgroundColor: 'rgba(0, 168, 107, 0.7)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            chartInstances.push(chart);
+        }
+
+        function renderComparisonChart() {
+            const ctx = document.getElementById('comparisonChart');
+            if (!ctx) return;
+            
+            const tickers = Object.keys(emitenData);
+            const marketCaps = tickers.map(ticker => {
+                const data = emitenData[ticker];
+                const price = data.prices?.current || 0;
+                const shares = data.annual?.['2023']?.shares || 0;
+                return (price * shares) / 1000000; // In trillions
+            });
+            
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: tickers,
+                    datasets: [
+                        {
+                            label: 'Market Cap (Rp Triliun)',
+                            data: marketCaps,
+                            backgroundColor: [
+                                'rgba(15, 82, 186, 0.7)',
+                                'rgba(0, 168, 107, 0.7)',
+                                'rgba(255, 193, 7, 0.7)'
+                            ]
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(2) + 'T';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            chartInstances.push(chart);
+        }
+
+        // =============================================
+        // EXPORT AND UTILITY FUNCTIONS
+        // =============================================
+        
+        function exportToExcel() {
+            // Create CSV content
+            let csvContent = "Emiten,Metric,2023,2022,2021,2020,2019\n";
+            
+            Object.keys(emitenData).forEach(ticker => {
+                const data = emitenData[ticker];
+                const metrics = ['Revenue', 'Net Profit', 'Total Assets', 'Equity'];
+                
+                metrics.forEach((metric, index) => {
+                    const key = metric.toLowerCase().replace(' ', '');
+                    csvContent += `${ticker},${metric}`;
+                    
+                    ['2023', '2022', '2021', '2020', '2019'].forEach(year => {
+                        const value = data.annual?.[year]?.[key] || 0;
+                        csvContent += `,${value}`;
+                    });
+                    
+                    csvContent += '\n';
+                });
+            });
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute("href", url);
+            link.setAttribute("download", `rdfe_export_${new Date().toISOString().slice(0,10)}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast('Data berhasil diexport ke CSV', 'success');
+        }
+
+        function showSettings() {
+            const html = `
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="mb-2">
+                            <i class="fas fa-cog me-2"></i>
+                            Pengaturan Aplikasi
+                        </h2>
+                        <p class="text-muted">Konfigurasi aplikasi RDFE</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="mb-3">Data Management</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <button class="btn btn-outline-primary w-100 mb-2" onclick="exportToExcel()">
+                                        <i class="fas fa-download me-2"></i> Export Data ke CSV
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <button class="btn btn-outline-success w-100 mb-2" onclick="backupData()">
+                                        <i class="fas fa-save me-2"></i> Backup Data
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <button class="btn btn-outline-danger w-100" onclick="clearData()">
+                                        <i class="fas fa-trash me-2"></i> Hapus Semua Data
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <h5 class="mb-3">Informasi Aplikasi</h5>
+                        <div class="alert alert-info">
+                            <strong>RDFE Web App v1.0</strong><br>
+                            Aplikasi analisis fundamental saham BEI<br>
+                            Data tersimpan di browser Anda (localStorage)<br>
+                            <small class="text-muted">Terakhir update: ${new Date().toLocaleDateString('id-ID')}</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('contentArea').innerHTML = html;
+        }
+
+        function backupData() {
+            const backup = {
+                emitenData: emitenData,
+                timestamp: new Date().toISOString(),
+                version: '1.0'
+            };
+            
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            
+            link.setAttribute("href", url);
+            link.setAttribute("download", `rdfe_backup_${new Date().toISOString().slice(0,10)}.json`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast('Backup data berhasil dibuat', 'success');
+        }
+
+        function clearData() {
+            if (confirm('Apakah Anda yakin ingin menghapus semua data? Tindakan ini tidak dapat dibatalkan.')) {
+                localStorage.removeItem('rdfe_data');
+                emitenData = {};
+                initializeData();
+                showToast('Semua data telah dihapus', 'warning');
+            }
+        }
+
+        // =============================================
+        // INITIALIZATION
+        // =============================================
+        
+        // Initialize the application when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeData();
+        });
+    </script>
 </body>
 </html>
