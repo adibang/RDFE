@@ -1,1 +1,603 @@
+<!-- Comparison Module -->
+<div class="dashboard-container">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-balance-scale me-2"></i>
+                Komparasi Multi-Emiten
+            </h1>
+            <p class="dashboard-subtitle">
+                Bandingkan fundamental dan valuasi beberapa emiten sekaligus
+            </p>
+        </div>
+        <div class="dashboard-actions">
+            <button class="btn btn-outline-primary btn-sm" onclick="app.addToComparison()">
+                <i class="fas fa-plus me-1"></i> Tambah Emiten
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="app.exportComparison()">
+                <i class="fas fa-download me-1"></i> Export
+            </button>
+        </div>
+    </div>
 
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <div class="filter-group">
+            <span class="filter-label">Sektor:</span>
+            <select class="form-control filter-select" id="sectorFilter" onchange="app.filterBySector()">
+                <option value="">Semua Sektor</option>
+                <option value="Perbankan">Perbankan</option>
+                <option value="Telekomunikasi">Telekomunikasi</option>
+                <option value="Consumer Goods">Consumer Goods</option>
+                <option value="Property">Property</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <span class="filter-label">Urutkan:</span>
+            <select class="form-control filter-select" id="sortFilter" onchange="app.sortComparison()">
+                <option value="ticker">Kode Saham</option>
+                <option value="marketCap">Market Cap</option>
+                <option value="PER">PER</option>
+                <option value="ROE">ROE</option>
+                <option value="upside">Upside</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <span class="filter-label">Arah:</span>
+            <select class="form-control filter-select" id="sortDirection" onchange="app.sortComparison()">
+                <option value="asc">Naik</option>
+                <option value="desc">Turun</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="showOnlyBuy" onchange="app.filterComparison()">
+                <label class="form-check-label" for="showOnlyBuy">
+                    Tampilkan Hanya BUY
+                </label>
+            </div>
+        </div>
+        
+        <button class="btn btn-outline-secondary btn-sm" onclick="app.resetFilters()">
+            <i class="fas fa-redo me-1"></i> Reset
+        </button>
+    </div>
+
+    <!-- Comparison Table -->
+    <div class="data-section">
+        <div class="data-header">
+            <h3 class="data-title">Tabel Perbandingan</h3>
+            <p class="data-subtitle">Klik header untuk mengurutkan</p>
+        </div>
+        <div class="data-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="comparisonTable">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-sort="ticker" onclick="app.sortTable('ticker')">
+                                Ticker <i class="fas fa-sort"></i>
+                            </th>
+                            <th class="sortable" data-sort="sector" onclick="app.sortTable('sector')">
+                                Sektor <i class="fas fa-sort"></i>
+                            </th>
+                            <th class="sortable" data-sort="marketCap" onclick="app.sortTable('marketCap')">
+                                Market Cap <i class="fas fa-sort"></i>
+                            </th>
+                            <th class="sortable" data-sort="PER" onclick="app.sortTable('PER')">
+                                PER <i class="fas fa-sort"></i>
+                            </th>
+                            <th class="sortable" data-sort="PBV" onclick="app.sortTable('PBV')">
+                                PBV <i class="fas fa-sort"></i>
+                            </th>
+                            <th class="sortable" data-sort="ROE" onclick="app.sortTable('ROE')">
+                                ROE <i class="fas fa-sort"></i>
+                            </th>
+                            <th class="sortable" data-sort="DER" onclick="app.sortTable('DER')">
+                                DER <i class="fas fa-sort"></i>
+                            </th>
+                            <th class="sortable" data-sort="dividendYield" onclick="app.sortTable('dividendYield')">
+                                Div Yield <i class="fas fa-sort"></i>
+                            </th>
+                            <th class="sortable" data-sort="targetPrice" onclick="app.sortTable('targetPrice')">
+                                Target Price <i class="fas fa-sort"></i>
+                            </th>
+                            <th class="sortable" data-sort="upside" onclick="app.sortTable('upside')">
+                                Upside <i class="fas fa-sort"></i>
+                            </th>
+                            <th>Recommendation</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="comparisonTableBody">
+                        <!-- Will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Selected Emiten -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Emiten Terpilih untuk Perbandingan</h5>
+        </div>
+        <div class="card-body">
+            <div class="d-flex flex-wrap gap-2 mb-3" id="selectedTickers">
+                <!-- Will be populated by JavaScript -->
+            </div>
+            <div class="input-group">
+                <select class="form-control" id="addTickerSelect">
+                    <option value="">Pilih emiten untuk ditambahkan...</option>
+                    <option value="BBCA">BBCA - Bank Central Asia</option>
+                    <option value="TLKM">TLKM - Telkom Indonesia</option>
+                    <option value="ASII">ASII - Astra International</option>
+                    <option value="UNVR">UNVR - Unilever Indonesia</option>
+                    <option value="ICBP">ICBP - Indofood CBP</option>
+                </select>
+                <button class="btn btn-primary" type="button" onclick="app.addSelectedTicker()">
+                    <i class="fas fa-plus"></i> Tambah
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Comparison -->
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="chart-wrapper">
+                <div class="chart-header">
+                    <h3 class="chart-title">PER vs ROE Comparison</h3>
+                    <div class="chart-actions">
+                        <button onclick="app.toggleChartType('perRoe')">Bar</button>
+                        <button onclick="app.toggleChartType('perRoe')">Scatter</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="perRoeChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="chart-wrapper">
+                <div class="chart-header">
+                    <h3 class="chart-title">Market Cap vs Dividend Yield</h3>
+                    <div class="chart-actions">
+                        <button onclick="app.toggleChartType('marketCapDiv')">Bubble</button>
+                        <button onclick="app.toggleChartType('marketCapDiv')">Bar</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="marketCapDivChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Comparison -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Perbandingan Detail (Top 3 Emiten)</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th id="detailTicker1">BBCA</th>
+                            <th id="detailTicker2">TLKM</th>
+                            <th id="detailTicker3">ASII</th>
+                            <th>Sektor Avg</th>
+                            <th>Best</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailedComparison">
+                        <tr>
+                            <td><strong>Market Cap (T)</strong></td>
+                            <td>1,179</td>
+                            <td>350</td>
+                            <td>250</td>
+                            <td>593</td>
+                            <td><span class="badge bg-success">BBCA</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>PER (x)</strong></td>
+                            <td>15.2</td>
+                            <td>18.5</td>
+                            <td>16.8</td>
+                            <td>16.8</td>
+                            <td><span class="badge bg-success">BBCA</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>PBV (x)</strong></td>
+                            <td>2.4</td>
+                            <td>3.2</td>
+                            <td>2.8</td>
+                            <td>2.8</td>
+                            <td><span class="badge bg-success">BBCA</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>ROE (%)</strong></td>
+                            <td>16.0</td>
+                            <td>18.5</td>
+                            <td>15.8</td>
+                            <td>16.8</td>
+                            <td><span class="badge bg-success">TLKM</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>DER (x)</strong></td>
+                            <td>3.8</td>
+                            <td>1.2</td>
+                            <td>2.1</td>
+                            <td>2.4</td>
+                            <td><span class="badge bg-success">TLKM</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dividend Yield (%)</strong></td>
+                            <td>2.1</td>
+                            <td>3.5</td>
+                            <td>2.8</td>
+                            <td>2.8</td>
+                            <td><span class="badge bg-success">TLKM</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Net Margin (%)</strong></td>
+                            <td>26.7</td>
+                            <td>25.3</td>
+                            <td>8.5</td>
+                            <td>20.2</td>
+                            <td><span class="badge bg-success">BBCA</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Revenue Growth 3Y (%)</strong></td>
+                            <td>10.7</td>
+                            <td>8.5</td>
+                            <td>12.3</td>
+                            <td>10.5</td>
+                            <td><span class="badge bg-success">ASII</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Screening Rules -->
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>
+                        Screening Rules
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="screeningForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Max PER</label>
+                                <input type="number" class="form-control" id="maxPER" value="20" step="1">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Min ROE</label>
+                                <input type="number" class="form-control" id="minROE" value="15" step="1">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Max DER</label>
+                                <input type="number" class="form-control" id="maxDER" value="3" step="0.1">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Min Div Yield</label>
+                                <input type="number" class="form-control" id="minDivYield" value="2" step="0.1">
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="positiveGrowth" checked>
+                                    <label class="form-check-label" for="positiveGrowth">
+                                        Hanya emiten dengan revenue growth positif
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary w-100" onclick="app.applyScreening()">
+                            <i class="fas fa-search me-1"></i> Terapkan Screening
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-trophy me-2"></i>
+                        Top Picks
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group" id="topPicksList">
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">BBCA - Bank Central Asia</h6>
+                                <span class="badge bg-success">BUY</span>
+                            </div>
+                            <p class="mb-1">PER 15.2x, ROE 16.0%, Upside 18.0%</p>
+                            <small class="text-muted">Rekomendasi kuat untuk long term investment</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">TLKM - Telkom Indonesia</h6>
+                                <span class="badge bg-primary">HOLD</span>
+                            </div>
+                            <p class="mb-1">PER 18.5x, ROE 18.5%, Div Yield 3.5%</p>
+                            <small class="text-muted">Dividend play dengan fundamental kuat</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">ASII - Astra International</h6>
+                                <span class="badge bg-warning">ACCUMULATE</span>
+                            </div>
+                            <p class="mb-1">PER 16.8x, Growth 12.3%, Upside 15.5%</p>
+                            <small class="text-muted">Growth story dengan valuasi menarik</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Options -->
+    <div class="card mt-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">
+                <i class="fas fa-file-export me-2"></i>
+                Export Options
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <button class="btn btn-outline-primary w-100" onclick="app.exportComparisonCSV()">
+                        <i class="fas fa-file-csv me-1"></i> Export to CSV
+                    </button>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <button class="btn btn-outline-success w-100" onclick="app.exportComparisonExcel()">
+                        <i class="fas fa-file-excel me-1"></i> Export to Excel
+                    </button>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <button class="btn btn-outline-info w-100" onclick="app.exportComparisonPDF()">
+                        <i class="fas fa-file-pdf me-1"></i> Export to PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Comparison module specific JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize comparison table
+    const initializeComparisonTable = () => {
+        const tableBody = document.getElementById('comparisonTableBody');
+        if (!tableBody) return;
+        
+        // Sample data
+        const comparisonData = [
+            {
+                ticker: 'BBCA',
+                name: 'Bank Central Asia',
+                sector: 'Perbankan',
+                marketCap: 1179000,
+                PER: '15.2x',
+                PBV: '2.4x',
+                ROE: '16.0%',
+                DER: '3.8x',
+                dividendYield: '2.1%',
+                targetPrice: 5600,
+                upside: '18.0%',
+                recommendation: 'BUY'
+            },
+            {
+                ticker: 'TLKM',
+                name: 'Telkom Indonesia',
+                sector: 'Telekomunikasi',
+                marketCap: 350000,
+                PER: '18.5x',
+                PBV: '3.2x',
+                ROE: '18.5%',
+                DER: '1.2x',
+                dividendYield: '3.5%',
+                targetPrice: 5200,
+                upside: '12.5%',
+                recommendation: 'HOLD'
+            },
+            {
+                ticker: 'ASII',
+                name: 'Astra International',
+                sector: 'Consumer Goods',
+                marketCap: 250000,
+                PER: '16.8x',
+                PBV: '2.8x',
+                ROE: '15.8%',
+                DER: '2.1x',
+                dividendYield: '2.8%',
+                targetPrice: 5800,
+                upside: '15.5%',
+                recommendation: 'ACCUMULATE'
+            }
+        ];
+        
+        let html = '';
+        comparisonData.forEach(item => {
+            const upsideClass = parseFloat(item.upside) >= 0 ? 'positive' : 'negative';
+            const recClass = {
+                'BUY': 'success',
+                'HOLD': 'primary',
+                'ACCUMULATE': 'warning',
+                'SELL': 'danger'
+            }[item.recommendation] || 'secondary';
+            
+            html += `<tr>
+                <td>
+                    <strong>${item.ticker}</strong><br>
+                    <small class="text-muted">${item.name}</small>
+                </td>
+                <td>${item.sector}</td>
+                <td>${formatMarketCap(item.marketCap)}</td>
+                <td>${item.PER}</td>
+                <td>${item.PBV}</td>
+                <td>${item.ROE}</td>
+                <td>${item.DER}</td>
+                <td>${item.dividendYield}</td>
+                <td>${item.targetPrice.toLocaleString('id-ID')}</td>
+                <td class="${upsideClass}">${item.upside}</td>
+                <td><span class="badge bg-${recClass}">${item.recommendation}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="app.viewDetails('${item.ticker}')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="app.removeFromComparison('${item.ticker}')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </td>
+            </tr>`;
+        });
+        
+        tableBody.innerHTML = html;
+    };
+    
+    const formatMarketCap = (value) => {
+        if (value >= 1e12) return (value / 1e12).toFixed(2) + 'T';
+        if (value >= 1e9) return (value / 1e9).toFixed(2) + 'B';
+        return value.toLocaleString('id-ID');
+    };
+    
+    // Initialize comparison charts
+    const initializeCharts = () => {
+        const perRoeCtx = document.getElementById('perRoeChart')?.getContext('2d');
+        const marketCapDivCtx = document.getElementById('marketCapDivChart')?.getContext('2d');
+        
+        if (perRoeCtx) {
+            new Chart(perRoeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['BBCA', 'TLKM', 'ASII'],
+                    datasets: [
+                        {
+                            label: 'PER (x)',
+                            data: [15.2, 18.5, 16.8],
+                            backgroundColor: 'rgba(15, 82, 186, 0.7)',
+                            borderColor: '#0f52ba',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'ROE (%)',
+                            data: [16.0, 18.5, 15.8],
+                            backgroundColor: 'rgba(0, 168, 107, 0.7)',
+                            borderColor: '#00a86b',
+                            borderWidth: 1,
+                            type: 'line',
+                            fill: false,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'PER (x)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'ROE (%)'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        if (marketCapDivCtx) {
+            new Chart(marketCapDivCtx, {
+                type: 'bubble',
+                data: {
+                    datasets: [
+                        {
+                            label: 'BBCA',
+                            data: [{
+                                x: 1179, // Market Cap in billion
+                                y: 2.1,  // Dividend Yield
+                                r: 20    // Bubble size
+                            }],
+                            backgroundColor: 'rgba(15, 82, 186, 0.7)'
+                        },
+                        {
+                            label: 'TLKM',
+                            data: [{
+                                x: 350,
+                                y: 3.5,
+                                r: 15
+                            }],
+                            backgroundColor: 'rgba(0, 168, 107, 0.7)'
+                        },
+                        {
+                            label: 'ASII',
+                            data: [{
+                                x: 250,
+                                y: 2.8,
+                                r: 12
+                            }],
+                            backgroundColor: 'rgba(255, 193, 7, 0.7)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Market Cap (Rp Miliar)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Dividend Yield (%)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    };
+    
+    // Initialize on load
+    initializeComparisonTable();
+    initializeCharts();
+});
+</script>
