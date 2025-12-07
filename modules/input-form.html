@@ -1,1 +1,548 @@
+<!-- Input Form Module -->
+<div class="dashboard-container">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-edit me-2"></i>
+                Input Data Emiten
+            </h1>
+            <p class="dashboard-subtitle" id="inputSubtitle">
+                Masukkan data laporan keuangan tahunan dan kuartalan
+            </p>
+        </div>
+        <div class="dashboard-actions">
+            <button class="btn btn-outline-secondary btn-sm" onclick="app.cancelInput()">
+                <i class="fas fa-times me-1"></i> Batal
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="app.saveInputData()">
+                <i class="fas fa-save me-1"></i> Simpan Semua
+            </button>
+        </div>
+    </div>
 
+    <!-- Emiten Selector -->
+    <div class="filter-bar">
+        <div class="filter-group">
+            <span class="filter-label">Emiten:</span>
+            <select class="form-control filter-select" id="inputEmitenSelect" onchange="app.changeInputEmiten()">
+                <option value="BBCA">BBCA - Bank Central Asia</option>
+                <option value="TLKM">TLKM - Telkom Indonesia</option>
+                <option value="ASII">ASII - Astra International</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <span class="filter-label">Tipe Data:</span>
+            <select class="form-control filter-select" id="dataTypeSelect">
+                <option value="annual">Tahunan</option>
+                <option value="quarterly">Kuartalan</option>
+                <option value="prices">Harga Saham</option>
+            </select>
+        </div>
+        
+        <button class="btn btn-outline-primary btn-sm" onclick="app.addNewYear()">
+            <i class="fas fa-plus me-1"></i> Tambah Tahun
+        </button>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs" id="inputTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="annual-tab" data-bs-toggle="tab" 
+                    data-bs-target="#annual" type="button" role="tab">
+                <i class="fas fa-calendar-alt me-1"></i> Data Tahunan
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="quarterly-tab" data-bs-toggle="tab" 
+                    data-bs-target="#quarterly" type="button" role="tab">
+                <i class="fas fa-calendar me-1"></i> Data Kuartalan
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="prices-tab" data-bs-toggle="tab" 
+                    data-bs-target="#prices" type="button" role="tab">
+                <i class="fas fa-chart-line me-1"></i> Data Harga
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="info-tab" data-bs-toggle="tab" 
+                    data-bs-target="#info" type="button" role="tab">
+                <i class="fas fa-info-circle me-1"></i> Info Emiten
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content p-4 border border-top-0 bg-white rounded-bottom" id="inputTabContent">
+        <!-- Annual Data Tab -->
+        <div class="tab-pane fade show active" id="annual" role="tabpanel">
+            <form id="annualForm">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h4 class="mb-3">Data Laporan Keuangan Tahunan</h4>
+                        <p class="text-muted">Masukkan data dalam Rp Miliar, kecuali saham beredar (juta lembar)</p>
+                    </div>
+                </div>
+
+                <!-- 2023 Data -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Tahun 2023</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Revenue (Rp Miliar)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="revenue_2023" placeholder="0" step="0.01">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Net Profit (Rp Miliar)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="netProfit_2023" placeholder="0" step="0.01">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Total Assets (Rp Miliar)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="totalAssets_2023" placeholder="0" step="0.01">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Equity (Rp Miliar)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="equity_2023" placeholder="0" step="0.01">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Saham Beredar (Juta Lembar)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="shares_2023" placeholder="0" step="0.01">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">EPS (Rupiah)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="eps_2023" placeholder="0" step="0.01" readonly>
+                                <small class="form-text text-muted">Dihitung otomatis</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2022 Data -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Tahun 2022</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Revenue (Rp Miliar)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="revenue_2022" placeholder="0" step="0.01">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Net Profit (Rp Miliar)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="netProfit_2022" placeholder="0" step="0.01">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Total Assets (Rp Miliar)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="totalAssets_2022" placeholder="0" step="0.01">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Equity (Rp Miliar)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="equity_2022" placeholder="0" step="0.01">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Saham Beredar (Juta Lembar)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="shares_2022" placeholder="0" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2021 Data -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Tahun 2021</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Revenue (Rp Miliar)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="revenue_2021" placeholder="0" step="0.01">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Net Profit (Rp Miliar)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="netProfit_2021" placeholder="0" step="0.01">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Total Assets (Rp Miliar)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="totalAssets_2021" placeholder="0" step="0.01">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Equity (Rp Miliar)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="equity_2021" placeholder="0" step="0.01">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Saham Beredar (Juta Lembar)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="shares_2021" placeholder="0" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Calculations -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Perhitungan Cepat</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">CAGR Revenue (3 Tahun)</label>
+                                <input type="text" class="form-control" id="cagrRevenue" readonly>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">CAGR Net Profit (3 Tahun)</label>
+                                <input type="text" class="form-control" id="cagrNetProfit" readonly>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Average ROE (3 Tahun)</label>
+                                <input type="text" class="form-control" id="avgROE" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Quarterly Data Tab -->
+        <div class="tab-pane fade" id="quarterly" role="tabpanel">
+            <form id="quarterlyForm">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h4 class="mb-3">Data Laporan Keuangan Kuartalan</h4>
+                        <p class="text-muted">Masukkan data kuartalan terbaru (4 kuartal terakhir)</p>
+                    </div>
+                </div>
+
+                <!-- Quarterly Data Entry -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Q4 2023</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Revenue (Rp Miliar)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="revenue_q4_2023" placeholder="0" step="0.01">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Net Profit (Rp Miliar)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="netProfit_q4_2023" placeholder="0" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Q3 2023</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Revenue (Rp Miliar)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="revenue_q3_2023" placeholder="0" step="0.01">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Net Profit (Rp Miliar)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="netProfit_q3_2023" placeholder="0" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quarterly Summary -->
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Ringkasan Kuartalan</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Kuartal</th>
+                                    <th>Revenue</th>
+                                    <th>Net Profit</th>
+                                    <th>QoQ Growth</th>
+                                    <th>YoY Growth</th>
+                                </tr>
+                            </thead>
+                            <tbody id="quarterlySummary">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Prices Data Tab -->
+        <div class="tab-pane fade" id="prices" role="tabpanel">
+            <form id="pricesForm">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h4 class="mb-3">Data Harga Saham</h4>
+                        <p class="text-muted">Masukkan data harga saham terbaru atau impor dari CSV</p>
+                    </div>
+                </div>
+
+                <!-- Current Price -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Harga Saat Ini</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Harga Terakhir (Rp)</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="currentPrice" placeholder="0" step="1">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Tanggal</label>
+                                <input type="date" class="form-control auto-save" 
+                                       id="priceDate" value="2024-01-15">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Market Cap (Rp Miliar)</label>
+                                <input type="text" class="form-control" id="marketCap" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historical Prices -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Harga Historis</h5>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="app.importPrices()">
+                            <i class="fas fa-file-import me-1"></i> Impor CSV
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Open</th>
+                                        <th>High</th>
+                                        <th>Low</th>
+                                        <th>Close</th>
+                                        <th>Volume</th>
+                                        <th>Market Cap</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="priceHistory">
+                                    <!-- Will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Performance -->
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Kinerja Harga</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">YTD Return</label>
+                                <input type="text" class="form-control" id="ytdReturn" readonly>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">1-Year Return</label>
+                                <input type="text" class="form-control" id="oneYearReturn" readonly>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">3-Year CAGR</label>
+                                <input type="text" class="form-control" id="threeYearCAGR" readonly>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Volatilitas (30 Hari)</label>
+                                <input type="text" class="form-control" id="volatility" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Company Info Tab -->
+        <div class="tab-pane fade" id="info" role="tabpanel">
+            <form id="infoForm">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h4 class="mb-3">Informasi Perusahaan</h4>
+                        <p class="text-muted">Informasi dasar dan klasifikasi emiten</p>
+                    </div>
+                </div>
+
+                <!-- Basic Information -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Informasi Dasar</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Kode Saham</label>
+                                <input type="text" class="form-control auto-save" 
+                                       id="ticker" placeholder="BBCA" maxlength="4">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nama Perusahaan</label>
+                                <input type="text" class="form-control auto-save" 
+                                       id="companyName" placeholder="Bank Central Asia">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Sektor</label>
+                                <select class="form-control auto-save" id="sector">
+                                    <option value="">Pilih Sektor</option>
+                                    <option value="Perbankan">Perbankan</option>
+                                    <option value="Telekomunikasi">Telekomunikasi</option>
+                                    <option value="Consumer Goods">Consumer Goods</option>
+                                    <option value="Property">Property</option>
+                                    <option value="Mining">Mining</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Subsektor</label>
+                                <input type="text" class="form-control auto-save" 
+                                       id="subsector" placeholder="Bank Komersial">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tanggal Listing</label>
+                                <input type="date" class="form-control auto-save" 
+                                       id="listingDate">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Beta</label>
+                                <input type="number" class="form-control auto-save" 
+                                       id="beta" placeholder="1.0" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Info -->
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Informasi Tambahan</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Deskripsi Perusahaan</label>
+                                <textarea class="form-control auto-save" id="description" 
+                                          rows="4" placeholder="Deskripsi singkat tentang perusahaan..."></textarea>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Website</label>
+                                <input type="url" class="form-control auto-save" 
+                                       id="website" placeholder="https://www.bca.co.id">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Investor Relations</label>
+                                <input type="url" class="form-control auto-save" 
+                                       id="investorRelations" placeholder="https://www.bca.co.id/investor">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="mt-4 p-3 bg-light rounded d-flex justify-content-between">
+        <div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="autoCalculate">
+                <label class="form-check-label" for="autoCalculate">
+                    Auto-calculate ratios saat input
+                </label>
+            </div>
+        </div>
+        <div>
+            <button class="btn btn-secondary me-2" onclick="app.cancelInput()">
+                <i class="fas fa-times me-1"></i> Batal
+            </button>
+            <button class="btn btn-primary" onclick="app.saveInputData()">
+                <i class="fas fa-save me-1"></i> Simpan Semua Perubahan
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Input form specific JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-calculate EPS
+    const calculateEPS = () => {
+        const netProfit = parseFloat(document.getElementById('netProfit_2023')?.value) || 0;
+        const shares = parseFloat(document.getElementById('shares_2023')?.value) || 1;
+        const eps = (netProfit * 1000) / shares; // Convert to per share
+        const epsInput = document.getElementById('eps_2023');
+        if (epsInput) {
+            epsInput.value = eps.toFixed(2);
+        }
+    };
+
+    // Auto-calculate market cap
+    const calculateMarketCap = () => {
+        const price = parseFloat(document.getElementById('currentPrice')?.value) || 0;
+        const shares = parseFloat(document.getElementById('shares_2023')?.value) || 1;
+        const marketCap = price * shares; // In billion
+        const marketCapInput = document.getElementById('marketCap');
+        if (marketCapInput) {
+            marketCapInput.value = marketCap.toLocaleString('id-ID', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+    };
+
+    // Add event listeners
+    const netProfitInput = document.getElementById('netProfit_2023');
+    const sharesInput = document.getElementById('shares_2023');
+    const priceInput = document.getElementById('currentPrice');
+
+    if (netProfitInput && sharesInput) {
+        netProfitInput.addEventListener('input', calculateEPS);
+        sharesInput.addEventListener('input', calculateEPS);
+    }
+
+    if (priceInput && sharesInput) {
+        priceInput.addEventListener('input', calculateMarketCap);
+        sharesInput.addEventListener('input', calculateMarketCap);
+    }
+});
+</script>
