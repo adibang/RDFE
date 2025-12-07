@@ -1,1 +1,513 @@
+<!-- Valuation Module -->
+<div class="dashboard-container">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-coins me-2"></i>
+                Valuasi - <span id="valuationTicker">BBCA</span>
+            </h1>
+            <p class="dashboard-subtitle" id="valuationSubtitle">
+                Perhitungan nilai wajar dengan berbagai metode
+            </p>
+        </div>
+        <div class="dashboard-actions">
+            <button class="btn btn-outline-primary btn-sm" onclick="app.saveValuation()">
+                <i class="fas fa-save me-1"></i> Simpan Asumsi
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="app.exportValuation()">
+                <i class="fas fa-download me-1"></i> Export Report
+            </button>
+        </div>
+    </div>
 
+    <!-- Valuation Methods -->
+    <div class="row mb-4">
+        <!-- PER Valuation -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        PER Valuation
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">EPS 2024E (Rp)</label>
+                        <input type="number" class="form-control auto-save" 
+                               id="epsProjection" value="350" step="1">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">PER Wajar (x)</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control auto-save" 
+                                   id="fairPER" value="16.0" step="0.1">
+                            <span class="input-group-text">x</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Margin of Safety</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control auto-save" 
+                                   id="perMOS" value="15" step="1">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <div class="alert alert-success">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Target Harga:</strong>
+                                <div class="h4 mt-2" id="perTargetPrice">Rp 5,600</div>
+                            </div>
+                            <div class="text-end">
+                                <small>Upside:</small>
+                                <div class="h5" id="perUpside">17.3%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        PER wajar berdasarkan ROE 16% dan growth 10%
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- PBV Valuation -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-book me-2"></i>
+                        PBV Valuation
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">BVPS 2024E (Rp)</label>
+                        <input type="number" class="form-control auto-save" 
+                               id="bvpsProjection" value="2200" step="1">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">PBV Wajar (x)</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control auto-save" 
+                                   id="fairPBV" value="2.5" step="0.1">
+                            <span class="input-group-text">x</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Margin of Safety</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control auto-save" 
+                                   id="pbvMOS" value="15" step="1">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <div class="alert alert-warning">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Target Harga:</strong>
+                                <div class="h4 mt-2" id="pbvTargetPrice">Rp 5,500</div>
+                            </div>
+                            <div class="text-end">
+                                <small>Upside:</small>
+                                <div class="h5" id="pbvUpside">15.2%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        PBV wajar = ROE (16%) × PER (16x) / (1 + growth 10%)
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- DCF Valuation -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calculator me-2"></i>
+                        DCF Valuation
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">WACC</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control auto-save" 
+                                   id="wacc" value="11.0" step="0.1">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Terminal Growth</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control auto-save" 
+                                   id="terminalGrowth" value="3.0" step="0.1">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">FCF Growth (5 Years)</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control auto-save" 
+                                   id="fcfGrowth" value="12.0" step="0.1">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Target Harga:</strong>
+                                <div class="h4 mt-2" id="dcfTargetPrice">Rp 5,800</div>
+                            </div>
+                            <div class="text-end">
+                                <small>Upside:</small>
+                                <div class="h5" id="dcfUpside">21.5%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Asumsi: 5-year projection, terminal growth 3%
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sensitivity Analysis -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">
+                <i class="fas fa-table me-2"></i>
+                Sensitivity Analysis - PER Valuation
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr class="text-center">
+                                    <th colspan="6">Target Price berdasarkan PER & EPS Growth</th>
+                                </tr>
+                                <tr>
+                                    <th>PER</th>
+                                    <th>8%</th>
+                                    <th>10%</th>
+                                    <th>12%</th>
+                                    <th>14%</th>
+                                    <th>16%</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sensitivityTable">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="sensitivityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Valuation Summary -->
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-star me-2"></i>
+                Ringkasan Valuasi
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row text-center mb-4">
+                <div class="col-md-4">
+                    <div class="display-6 text-primary">PER Method</div>
+                    <div class="display-4" id="summaryPER">Rp 5,600</div>
+                    <div class="h5 positive" id="summaryPERUpside">Upside: 17.3%</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="display-6 text-warning">PBV Method</div>
+                    <div class="display-4" id="summaryPBV">Rp 5,500</div>
+                    <div class="h5 positive" id="summaryPBVUpside">Upside: 15.2%</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="display-6 text-info">DCF Method</div>
+                    <div class="display-4" id="summaryDCF">Rp 5,800</div>
+                    <div class="h5 positive" id="summaryDCFUpside">Upside: 21.5%</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-dark">
+                        <div class="text-center">
+                            <div class="h4">Average Target Price</div>
+                            <div class="display-3 text-primary" id="averageTargetPrice">Rp 5,633</div>
+                            <div class="h3 positive" id="averageUpside">Average Upside: 18.0%</div>
+                            <div class="mt-3">
+                                <span class="badge bg-success me-2">BUY</span>
+                                <small class="text-muted">
+                                    Rekomendasi: BELI berdasarkan average upside > 10%
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assumptions -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h6 class="mb-3">Asumsi Valuasi:</h6>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <small class="text-muted d-block">Risk Free Rate</small>
+                            <span class="badge bg-secondary">6.5%</span>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted d-block">Market Risk Premium</small>
+                            <span class="badge bg-secondary">5.0%</span>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted d-block">Beta</small>
+                            <span class="badge bg-secondary">1.1</span>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted d-block">Tax Rate</small>
+                            <span class="badge bg-secondary">22%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DCF Projection Details -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">
+                <i class="fas fa-chart-line me-2"></i>
+                DCF Projection Details (5 Years)
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr class="text-center">
+                            <th>Tahun</th>
+                            <th>2024E</th>
+                            <th>2025E</th>
+                            <th>2026E</th>
+                            <th>2027E</th>
+                            <th>2028E</th>
+                            <th>Terminal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Revenue (Miliar)</strong></td>
+                            <td>165,000</td>
+                            <td>181,500</td>
+                            <td>199,650</td>
+                            <td>219,615</td>
+                            <td>241,577</td>
+                            <td>248,824</td>
+                        </tr>
+                        <tr>
+                            <td><strong>FCF (Miliar)</strong></td>
+                            <td>45,000</td>
+                            <td>49,500</td>
+                            <td>54,450</td>
+                            <td>59,895</td>
+                            <td>65,885</td>
+                            <td>67,862</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Discount Factor</strong></td>
+                            <td>0.9009</td>
+                            <td>0.8116</td>
+                            <td>0.7312</td>
+                            <td>0.6587</td>
+                            <td>0.5935</td>
+                            <td>0.5935</td>
+                        </tr>
+                        <tr>
+                            <td><strong>PV FCF (Miliar)</strong></td>
+                            <td>40,541</td>
+                            <td>40,164</td>
+                            <td>39,806</td>
+                            <td>39,466</td>
+                            <td>39,142</td>
+                            <td>402,567</td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="table-success">
+                        <tr>
+                            <td colspan="6" class="text-end"><strong>Enterprise Value:</strong></td>
+                            <td><strong>601,686</strong></td>
+                        </tr>
+                        <tr>
+                            <td colspan="6" class="text-end"><strong>Equity Value:</strong></td>
+                            <td><strong>376,686</strong></td>
+                        </tr>
+                        <tr>
+                            <td colspan="6" class="text-end"><strong>Target Price per Share:</strong></td>
+                            <td class="h4"><strong>Rp 3,052</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <button class="btn btn-outline-primary w-100" onclick="app.compareValuation()">
+                <i class="fas fa-balance-scale me-1"></i> Bandingkan dengan Emiten Lain
+            </button>
+        </div>
+        <div class="col-md-4 mb-3">
+            <button class="btn btn-outline-success w-100" onclick="app.saveValuationScenario()">
+                <i class="fas fa-save me-1"></i> Simpan Skenario
+            </button>
+        </div>
+        <div class="col-md-4 mb-3">
+            <button class="btn btn-outline-danger w-100" onclick="app.resetValuation()">
+                <i class="fas fa-redo me-1"></i> Reset ke Default
+            </button>
+        </div>
+    </div>
+
+    <!-- Historical Valuation -->
+    <div class="card mt-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">
+                <i class="fas fa-history me-2"></i>
+                Historical Valuation Trends
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="chart-container" style="height: 300px;">
+                <canvas id="historicalValuationChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Valuation module specific JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize valuation calculations
+    const calculateValuation = () => {
+        // Get input values
+        const eps = parseFloat(document.getElementById('epsProjection')?.value) || 0;
+        const per = parseFloat(document.getElementById('fairPER')?.value) || 0;
+        const bvps = parseFloat(document.getElementById('bvpsProjection')?.value) || 0;
+        const pbv = parseFloat(document.getElementById('fairPBV')?.value) || 0;
+        const currentPrice = 9550; // Example current price
+        
+        // Calculate PER valuation
+        const perTarget = eps * per;
+        const perUpside = ((perTarget - currentPrice) / currentPrice * 100).toFixed(1);
+        
+        // Update PER valuation display
+        const perTargetElement = document.getElementById('perTargetPrice');
+        const perUpsideElement = document.getElementById('perUpside');
+        if (perTargetElement) {
+            perTargetElement.textContent = `Rp ${perTarget.toLocaleString('id-ID')}`;
+        }
+        if (perUpsideElement) {
+            perUpsideElement.textContent = `${perUpside}%`;
+            perUpsideElement.className = `h5 ${perUpside >= 0 ? 'positive' : 'negative'}`;
+        }
+        
+        // Calculate PBV valuation
+        const pbvTarget = bvps * pbv;
+        const pbvUpside = ((pbvTarget - currentPrice) / currentPrice * 100).toFixed(1);
+        
+        // Update PBV valuation display
+        const pbvTargetElement = document.getElementById('pbvTargetPrice');
+        const pbvUpsideElement = document.getElementById('pbvUpside');
+        if (pbvTargetElement) {
+            pbvTargetElement.textContent = `Rp ${pbvTarget.toLocaleString('id-ID')}`;
+        }
+        if (pbvUpsideElement) {
+            pbvUpsideElement.textContent = `${pbvUpside}%`;
+            pbvUpsideElement.className = `h5 ${pbvUpside >= 0 ? 'positive' : 'negative'}`;
+        }
+        
+        // Calculate average
+        const averageTarget = (perTarget + pbvTarget) / 2;
+        const averageUpside = ((averageTarget - currentPrice) / currentPrice * 100).toFixed(1);
+        
+        // Update summary
+        document.getElementById('summaryPER').textContent = `Rp ${perTarget.toLocaleString('id-ID')}`;
+        document.getElementById('summaryPBV').textContent = `Rp ${pbvTarget.toLocaleString('id-ID')}`;
+        document.getElementById('averageTargetPrice').textContent = `Rp ${averageTarget.toLocaleString('id-ID')}`;
+        document.getElementById('averageUpside').textContent = `Average Upside: ${averageUpside}%`;
+        document.getElementById('averageUpside').className = `h3 ${averageUpside >= 0 ? 'positive' : 'negative'}`;
+        
+        // Update sensitivity table
+        updateSensitivityTable(eps);
+    };
+    
+    const updateSensitivityTable = (baseEPS) => {
+        const tableBody = document.getElementById('sensitivityTable');
+        if (!tableBody) return;
+        
+        let html = '';
+        const perValues = [14, 15, 16, 17, 18];
+        const growthRates = [8, 10, 12, 14, 16];
+        
+        perValues.forEach(per => {
+            html += '<tr>';
+            html += `<td>${per}x</td>`;
+            
+            growthRates.forEach(growth => {
+                const projectedEPS = baseEPS * (1 + growth/100);
+                const targetPrice = projectedEPS * per;
+                html += `<td>${targetPrice.toLocaleString('id-ID', {maximumFractionDigits: 0})}</td>`;
+            });
+            
+            html += '</tr>';
+        });
+        
+        tableBody.innerHTML = html;
+    };
+    
+    // Add event listeners to valuation inputs
+    const valuationInputs = [
+        'epsProjection', 'fairPER', 'bvpsProjection', 'fairPBV',
+        'wacc', 'terminalGrowth', 'fcfGrowth'
+    ];
+    
+    valuationInputs.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('input', calculateValuation);
+        }
+    });
+    
+    // Initial calculation
+    calculateValuation();
+});
+</script>
